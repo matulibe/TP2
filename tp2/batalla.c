@@ -167,115 +167,143 @@ void agregar_urukhai(juego_t* juego){
     }
 }
 
-//Pide al jugador defensivo que personaje quiere agregar y en que posicion, para madarlo al vector de rohan.
-void preguntar_rohan(juego_t* juego, personaje_t* personaje){
-  char ingresar;
+
+ void preguntar_usuario(juego_t* juego, personaje_t* personaje, char *ingresar){
   printf("Desea posicionar un personaje? S/N\n");
-  scanf(" %c", &ingresar);
-  if(ingresar == 'S'){
-    printf("Que personaje queres posicionar?\n");
-    scanf(" %c", &(personaje->codigo));
-    if((personaje->codigo == ELFOS) && ((juego->jugador1.energia >= ENERGIA_MOVILES) || (juego->jugador2.energia >= ENERGIA_MOVILES))){
-      printf("Donde lo queres posicionar?\n");
-      printf("Columna:\n");
-      scanf(" %i", &(personaje->columna));
-      printf("Fila:\n");
-      scanf(" %i", &(personaje->fila));
-      while(!esta_vacio(juego->terreno[personaje->fila][personaje->columna]) || ((personaje->fila) < 5) || ((personaje->fila) > 8)){
-        printf("Posicion no valida. Por favor ingrese otra.\n");
-        printf("Columna:\n");
-        scanf(" %i", &(personaje->columna));
-        printf("Fila:\n");
-        scanf(" %i", &(personaje->fila));
-      }
-        juego->rohan[juego->cantidad_rohan] = personaje_inmovil_nuevo(ELFOS, juego->plus_rohan, personaje->columna, personaje->fila);
-        juego->cantidad_rohan++;
+  scanf(" %c", &(*ingresar));
+  if(*ingresar == 'S'){
+    *ingresar = 'S';
+  }else if(*ingresar == 'N'){
+    *ingresar = 'N';
+  }else{
+      preguntar_usuario(juego, personaje, &(*ingresar));
+  }
+}
 
-      if(((personaje->fila > 4) && (personaje->fila < 9)) && ((personaje->columna >= 0) && (personaje->fila <= 9))){
-        juego->rohan[juego->cantidad_rohan] = personaje_inmovil_nuevo(ELFOS, juego->plus_rohan, personaje->columna, personaje->fila);
-        juego->cantidad_rohan++;
-      }
-      if(juego->jugador1.tipo == BANDO_DEFENSIVO){
-        juego->jugador1.energia = juego->jugador1.energia - ENERGIA_INMOVILES;
-      }else if(juego->jugador2.tipo == BANDO_DEFENSIVO){
-        juego->jugador2.energia = juego->jugador2.energia - ENERGIA_INMOVILES;
-      }
 
-    }else if((personaje->codigo == HOMBRES) && ((juego->jugador1.energia >= ENERGIA_MOVILES) || (juego->jugador2.energia >= ENERGIA_MOVILES))){
-      personaje->fila = FILA_HOMBRES;
-      printf("Donde lo queres posicionar?\n");
-      printf("Columna:\n");
-      scanf(" %i", &(personaje->columna));
+void agregar_rohan(juego_t* juego, personaje_t* personaje){
+  printf("Que personaje queres agregar?\n");
+  scanf(" %c", &(personaje->codigo));
+  if((personaje->codigo) == HOMBRES){
+    printf("Donde lo deseas posicionar?\n");
+    printf("Columna: ");
+    scanf("%i", &(personaje->columna));
+    personaje->fila = FILA_HOMBRES;
+    if(personaje->columna <= 9 && personaje->columna >= 0){
+      juego->terreno[personaje->fila][personaje->columna] = HOMBRES;
       juego->rohan[juego->cantidad_rohan] = personaje_movil_nuevo(HOMBRES, juego->plus_rohan, personaje->columna, personaje->fila);
       juego->cantidad_rohan++;
-      if(juego->jugador1.tipo == BANDO_DEFENSIVO){
-        juego->jugador1.energia = juego->jugador1.energia - ENERGIA_MOVILES;
-      }else if(juego->jugador2.tipo == BANDO_DEFENSIVO){
-        juego->jugador2.energia = juego->jugador2.energia - ENERGIA_MOVILES;
-      }
     }else{
-      printf("No se puede ingresar ese personaje. Por favor ingrese otro.\n");
-      preguntar_rohan( juego, personaje);
+      while(personaje->columna < 0 || personaje->columna > 9) {
+        printf("No se puede posicionar en ese lugar. Por favor ingrese otro valor.\n");
+        printf("Donde lo deseas posicionar?\n");
+        printf("Columna: ");
+        scanf("%i", &(personaje->columna));
+        personaje->fila = FILA_HOMBRES;
+      }
+      juego->terreno[personaje->fila][personaje->columna] = HOMBRES;
+      juego->rohan[juego->cantidad_rohan] = personaje_movil_nuevo(HOMBRES, juego->plus_rohan, personaje->columna, personaje->fila);
+      juego->cantidad_rohan++;
+    }
+  }else if((personaje->codigo) == ELFOS){
+    printf("Donde lo deseas posicionar?\n");
+    printf("Columna: ");
+    scanf("%i", &(personaje->columna));
+    printf("Fila: ");
+    scanf("%i", &(personaje->fila));
+    while(!esta_vacio(juego->terreno[personaje->fila][personaje->columna]) || ((personaje->fila) < 5) || ((personaje->fila) > 8) || (personaje->columna < 0 || personaje->columna > 9)){
+      printf("No se puede posicionar en ese lugar. Por favor ingrese otro valor.\n");
+      printf("Donde lo deseas posicionar?\n");
+      printf("Columna: ");
+      scanf("%i", &(personaje->columna));
+      printf("Fila: ");
+      scanf("%i", &(personaje->fila));
+    }
+    juego->terreno[personaje->fila][personaje->columna] = ELFOS;
+    juego->rohan[juego->cantidad_rohan] = personaje_inmovil_nuevo(ELFOS, juego->plus_rohan, personaje->columna, personaje->fila);
+    juego->cantidad_rohan++;
+    if(((personaje->fila) < 9) && ((personaje->fila) > 4) && (personaje->columna <= 9 && personaje->columna >= 0)){
+      juego->terreno[personaje->fila][personaje->columna] = ELFOS;
+      juego->rohan[juego->cantidad_rohan] = personaje_inmovil_nuevo(ELFOS, juego->plus_rohan, personaje->columna, personaje->fila);
+      juego->cantidad_rohan++;
     }
   }else{
-    return;
+    printf("Valor no valido. Reingrese otro.\n");
+    agregar_rohan(juego, personaje);
   }
 }
 
-//Pide al jugador defensivo que personaje quiere agregar y en que posicion y lo manda al vector de isengard.
-void preguntar_isengard(juego_t* juego, personaje_t* personaje){
-  char ingresar;
-  printf("Desea posicionar un personaje? S/N\n");
-  scanf(" %c", &ingresar);
-  if(ingresar == 'S'){
-    printf("Que personaje queres posicionar?\n");
-    scanf(" %c", &(personaje->codigo));
-    if((personaje->codigo == URUKHAI) && ((juego->jugador1.energia >= ENERGIA_INMOVILES) || (juego->jugador2.energia >= ENERGIA_INMOVILES))){
-      printf("Donde lo queres posicionar?\n");
-      printf("Columna:\n");
-      scanf(" %i", &(personaje->columna));
-      printf("Fila:\n");
-      scanf(" %i", &(personaje->fila));
-      while(!esta_vacio(juego->terreno[personaje->fila][personaje->columna]) || ((personaje->fila) < 1) || ((personaje->fila) > 4)){
-        printf("Posicion no valida. Por favor ingrese otra.\n");
-        printf("Columna:\n");
-        scanf(" %i", &(personaje->columna));
-        printf("Fila:\n");
-        scanf(" %i", &(personaje->fila));
-      }
-        juego->rohan[juego->cantidad_isengard] = personaje_inmovil_nuevo(URUKHAI, juego->plus_isengard, personaje->columna, personaje->fila);
-        juego->cantidad_isengard++;
 
-      if(((personaje->fila > 0) && (personaje->fila < 5)) && ((personaje->columna >= 1) && (personaje->fila <= 4))){
-        juego->isengard[juego->cantidad_isengard] = personaje_inmovil_nuevo(URUKHAI, juego->plus_isengard, personaje->columna, personaje->fila);
-        juego->cantidad_isengard++;
-      }
-      if(juego->jugador1.tipo == BANDO_OFENSIVO){
-        juego->jugador1.energia = juego->jugador1.energia - ENERGIA_INMOVILES;
-      }else if(juego->jugador2.tipo == BANDO_OFENSIVO){
-        juego->jugador2.energia = juego->jugador2.energia - ENERGIA_INMOVILES;
-      }
-
-    }else if((personaje->codigo == ORCOS) && ((juego->jugador1.energia >= ENERGIA_MOVILES) || (juego->jugador2.energia >= ENERGIA_MOVILES))){
-      personaje->fila = 0;
-      printf("Donde lo queres posicionar?\n");
-      printf("Columna:\n");
-      scanf(" %i", &(personaje->columna));
-      juego->isengard[juego->cantidad_isengard] = personaje_movil_nuevo(ORCOS, juego->plus_isengard, personaje->columna, personaje->fila);
+void agregar_isengard(juego_t* juego, personaje_t* personaje){
+  printf("Que personaje queres agregar?\n");
+  scanf(" %c", &(personaje->codigo));
+  if((personaje->codigo) == ORCOS){
+    printf("Donde lo deseas posicionar?\n");
+    printf("Columna: ");
+    scanf("%i", &(personaje->columna));
+    personaje->fila = 0;
+    if(personaje->columna <= 9 && personaje->columna >= 0){
+      juego->terreno[personaje->fila][personaje->columna] = ORCOS;
+      juego->isengard  [juego->cantidad_isengard ] = personaje_movil_nuevo(ORCOS, juego->plus_isengard  , personaje->columna, personaje->fila);
       juego->cantidad_isengard++;
-      if(juego->jugador1.tipo == BANDO_OFENSIVO){
-        juego->jugador1.energia = juego->jugador1.energia - ENERGIA_MOVILES;
-      }else if(juego->jugador2.tipo == BANDO_OFENSIVO){
-        juego->jugador2.energia = juego->jugador2.energia - ENERGIA_MOVILES;
-      }
     }else{
-      printf("No se puede ingresar ese personaje. Por favor ingrese otro.\n");
-      preguntar_isengard( juego, personaje);
+      while(personaje->columna < 0 || personaje->columna > 9) {
+        printf("No se puede posicionar en ese lugar. Por favor ingrese otro valor.\n");
+        printf("Donde lo deseas posicionar?\n");
+        printf("Columna: ");
+        scanf("%i", &(personaje->columna));
+        personaje->fila = ORCOS;
+      }
+      juego->terreno[personaje->fila][personaje->columna] = ORCOS;
+      juego->isengard  [juego->cantidad_isengard ] = personaje_movil_nuevo(ORCOS, juego->plus_isengard  , personaje->columna, personaje->fila);
+      juego->cantidad_isengard++;
+    }
+  }else if((personaje->codigo) == URUKHAI){
+    printf("Donde lo deseas posicionar?\n");
+    printf("Columna: ");
+    scanf("%i", &(personaje->columna));
+    printf("Fila: ");
+    scanf("%i", &(personaje->fila));
+    while(!esta_vacio(juego->terreno[personaje->fila][personaje->columna]) || ((personaje->fila) < 1) || ((personaje->fila) > 4) || (personaje->columna < 0 || personaje->columna > 9)){
+      printf("No se puede posicionar en ese lugar. Por favor ingrese otro valor.\n");
+      printf("Donde lo deseas posicionar?\n");
+      printf("Columna: ");
+      scanf("%i", &(personaje->columna));
+      printf("Fila: ");
+      scanf("%i", &(personaje->fila));
+    }
+    juego->terreno[personaje->fila][personaje->columna] = URUKHAI;
+    juego->isengard  [juego->cantidad_isengard ] = personaje_inmovil_nuevo(URUKHAI, juego->plus_isengard  , personaje->columna, personaje->fila);
+    juego->cantidad_isengard++;
+    if(((personaje->fila) < 9) && ((personaje->fila) > 4) && (personaje->columna <= 9 && personaje->columna >= 0)){
+      juego->terreno[personaje->fila][personaje->columna] = URUKHAI;
+      juego->isengard  [juego->cantidad_isengard ] = personaje_inmovil_nuevo(URUKHAI, juego->plus_isengard  , personaje->columna, personaje->fila);
+      juego->cantidad_isengard++;
     }
   }else{
-    return;
+    printf("Valor no valido. Reingrese otro.\n");
+    agregar_isengard(juego, personaje);
   }
 }
+
+
+void jugador_maquina(juego_t* juego, personaje_t personaje){
+  int numero = rand () % 10;
+  if(juego->jugador2.tipo == BANDO_DEFENSIVO){
+    personaje->fila = FILA_HOMBRES;
+    personaje->columna = numero;
+    juego->terreno[personaje->fila][personaje->columna] = HOMBRES;
+    juego->rohan[juego->cantidad_rohan] = personaje_movil_nuevo(HOMBRES, juego->plus_rohan, personaje->columna, personaje->fila);
+    juego->cantidad_rohan++;
+  }else{
+    personaje->fila = 0;
+    personaje->columna = numero;
+    juego->terreno[personaje->fila][personaje->columna] = HOMBRES;
+    juego->isengard[juego->cantidad_isengard] = personaje_movil_nuevo(HOMBRES, juego->plus_isengard, personaje->columna, personaje->fila);
+    juego->cantidad_isengard++;
+  }
+}
+
 
 //Le asigna el bando opuesto del jugador 1 al jugador 2.
 char tipo_opuesto(char tipo){
@@ -291,7 +319,6 @@ void energia_j1(juego_t* juego){
   }else{
     juego->jugador1.energia = juego->jugador1.energia;
   }
-
 }
 
 //Aumenta en 1 la energia de jugador 2.
@@ -301,48 +328,23 @@ void energia_j2(juego_t* juego){
   }else{
     juego->jugador2.energia = juego->jugador2.energia;
   }
-
 }
 
 
-/*bool rango_elfo(juego_t* juego, personaje_t personaje){
-  int x;
-  int y;
-  int i;
-  int j;
-  if((juego->terreno[x][y] = ELFOS && juego->terreno[i][j] = URUKHAI) || (juego->terreno[x][y] = ELFOS && juego->terreno[i][j] = ORCOS)){
-    while(((x - i) + (y - j)) == 2 || ((x - i) + (y - j)) == -2){
-      return true;
+void rango_inmovil(personaje_t personaje, personaje_t* enemigo, juego_t juego){
+  int distancia = (abs(personaje.fila - enemigo->fila) + abs(personaje.columna - enemigo->columna));
+  if(personaje.codigo == ELFOS){
+    for(int i = 0; i < juego.cantidad_isengard; i++){
+      if(distancia <= 3){
+        enemigo->vida - (ATAQUE_INMOVILES + plus_rohan);
+      }
     }
-  }else{
-    return false;
-  }
+  }else if(personaje.codigo == URUKHAI){
+    for(int i = 0; i < juego.cantidad_rohan; i++){
+      if(distancia <= 3){
+        enemigo->vida - (ATAQUE_INMOVILES + plus_isengard);
+      }
 }
-
-
-bool rango_urukhai(juego_t* juego, personaje_t personaje){
-  int x;
-  int y;
-  int i;
-  int j;
-  if((juego->terreno[x][y] = URUKHAI && juego->terreno[i][j] = ELFOS) || (juego->terreno[x][y] = URUKHAI && juego->terreno[i][j] = HOMBRES)){
-    while(((x - i) + (y - j)) == 2 || ((x - i) + (y - j)) == -2){
-      return true;
-    }
-  }else{
-    return false;
-  }
-}
-
-
-void ataque_inmoviles(juego_t* juego, personaje_t personaje){
-  int x;
-  int y;
-  if((juego->terreno[x][y] = ELFOS) || (juego->terreno[x][y] = URUKHAI)){
-    while()
-  }
-}
-*/
 
 void inicializar_juego(juego_t* juego){
     int intensidad;
@@ -362,23 +364,29 @@ void inicializar_juego(juego_t* juego){
 
 
 void pedir_datos(juego_t* juego, personaje_t* personaje){
-  if(juego->jugador1.tipo == BANDO_DEFENSIVO){
-    preguntar_rohan(juego, personaje);
-  }else if(juego->jugador2.tipo == BANDO_OFENSIVO){
-    preguntar_isengard(juego, personaje);
+  char ingresar;
+  preguntar_usuario(juego, personaje, &ingresar);
+  if(ingresar == 'S'){
+    if(juego->jugador1.tipo == BANDO_DEFENSIVO){
+      agregar_rohan(juego, personaje);
+    }else{
+      agregar_isengard(juego, personaje);
+    }
+  }else if(ingresar == 'N'){
+    return;
+  }else{
+    printf("Respuesta no valida. Por favor ingrese un valor correcto\n");
+    pedir_datos(juego, personaje);
   }
-  if(juego->jugador2.tipo == BANDO_OFENSIVO){
-    preguntar_isengard(juego, personaje);
-  }else if(juego->jugador2.tipo == BANDO_DEFENSIVO){
-    preguntar_rohan(juego, personaje);
-  }
+  imprimir_terreno(juego);
 }
 
 
-void posicionar_personaje(juego_t* juego, personaje_t personaje){
+
+/*void posicionar_personaje(juego_t* juego, personaje_t personaje){
   imprimir_terreno( juego);
   }
-
+*/
 
 
 

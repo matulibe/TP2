@@ -6,7 +6,7 @@ int main(){
 	personaje_t personaje;
 	inicializar_juego( &juego);
 	pedir_datos( &juego, &(personaje));
-	posicionar_personaje( &juego, personaje);
+	//posicionar_personaje( &juego, personaje);
 }
 
 
