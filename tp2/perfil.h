@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#define BANDO_OFENSIVO 'O'
-#define BANDO_DEFENSIVO 'D'
+#define BANDO_OFENSIVO 'I'
+#define BANDO_DEFENSIVO 'R'
 
 void perfil(char* tipo, int* intensidad);
 

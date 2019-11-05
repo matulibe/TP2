@@ -62,7 +62,7 @@ void averiguar_mascotas(int* cantidad_mascotas){
 }
 
 //Pre: Obtener un valor entero entre 0 y 99
-//Post: Saber la cantidad de maldades para obtener un valor inicial de la intensidad 
+//Post: Saber la cantidad de maldades para obtener un valor inicial de la intensidad
 void cantidad_de_maldades(int* maldades_ult_mes){
     printf("Cuantas maldades hiciste en el ultimo mes? Ingresa un numero entre 0 y 99\n");
     printf("NOTA: Si tu elemento es Tierra o Agua ingrese un numero entre 0 y 49. Si su elemento es Fuego o Aire ingrese un numero entre 50 y 99\n");
@@ -77,7 +77,7 @@ void cantidad_de_maldades(int* maldades_ult_mes){
 
 void asignar_nivel(int* cantidad_mascotas, int* maldades_ult_mes, int* nivel){
 
-    int intensidad = 0;   
+    int intensidad = 0;
 
     if( *cantidad_mascotas == 1){
        intensidad = intensidad + 1;
@@ -92,7 +92,7 @@ void asignar_nivel(int* cantidad_mascotas, int* maldades_ult_mes, int* nivel){
     }else if( *cantidad_mascotas == 0){
        intensidad = intensidad + 0;
     }
-        
+
     if(((*maldades_ult_mes >= 0) && (*maldades_ult_mes <= 9)) || ((*maldades_ult_mes >= 50) && (*maldades_ult_mes <= 59))){
            intensidad = intensidad + 1;
     }else if(((*maldades_ult_mes >= 10) && (*maldades_ult_mes <= 19)) || ((*maldades_ult_mes >= 60) && (*maldades_ult_mes <= 69))){
@@ -103,7 +103,7 @@ void asignar_nivel(int* cantidad_mascotas, int* maldades_ult_mes, int* nivel){
            intensidad = intensidad + 4;
     }else if(((*maldades_ult_mes >= 40) && (*maldades_ult_mes <= 49)) || ((*maldades_ult_mes >= 90) && (*maldades_ult_mes <= 99))){
            intensidad = intensidad + 5;
-    } 
+    }
 
     *nivel = intensidad;
 
@@ -111,12 +111,12 @@ void asignar_nivel(int* cantidad_mascotas, int* maldades_ult_mes, int* nivel){
 
 
 //Pre: Ingresar un caracter en Mayusculas
-//Post: Obtener el genero 
+//Post: Obtener el genero
 void averiguar_genero_fav(char *genero_cine_fav){
     printf("Cual es tu genero de cine preferido de las siguientes opciones(Solo ingrese  la letra asignada):\n");
     printf("A.accion\nD.drama\nC.comedia\nT.terror\n");
     scanf(" %c", genero_cine_fav);
-    
+
     while((*genero_cine_fav != 'A') && (*genero_cine_fav != 'D') && (*genero_cine_fav != 'C') && (*genero_cine_fav != 'T')){
         printf("\nValor ingresado no valido. Por favor ingrese un valor correcto.\n");
         scanf(" %c", genero_cine_fav);
@@ -124,22 +124,22 @@ void averiguar_genero_fav(char *genero_cine_fav){
     }
 
 void asignar_bando( int *signo_zodiaco, char *genero_cine_fav, int *maldades_ult_mes, char *elemento, char* bando, int *nivel, int* cantidad_mascotas){
-    
 
-    if(((*genero_cine_fav == GENERO_COMEDIA) || (*genero_cine_fav == GENERO_TERROR)) && (*maldades_ult_mes <= 99) && (*maldades_ult_mes >= 50) && 
+
+    if(((*genero_cine_fav == GENERO_COMEDIA) || (*genero_cine_fav == GENERO_TERROR)) && (*maldades_ult_mes <= 99) && (*maldades_ult_mes >= 50) &&
         ((*elemento == ELEMENTO_FUEGO) || (*elemento == ELEMENTO_AIRE))){
         *bando = BANDO_OFENSIVO;
          printf("Ha sido asignado al bando ofensivo, nivel %i, luchara de la mano de Saruman. Hagalo sin piedad!\n", *nivel);
-         
-    
-    }else if(((*genero_cine_fav == GENERO_ACCION) || (*genero_cine_fav == GENERO_DRAMA)) && (*maldades_ult_mes >= 0) && (*maldades_ult_mes <= 49) && 
+
+
+    }else if(((*genero_cine_fav == GENERO_ACCION) || (*genero_cine_fav == GENERO_DRAMA)) && (*maldades_ult_mes >= 0) && (*maldades_ult_mes <= 49) &&
         ((*elemento == ELEMENTO_AGUA) || (*elemento == ELEMENTO_TIERRA))){
         *bando = BANDO_DEFENSIVO;
         printf("Ha sido asignado al bando defensivo, nivel %i, luchara de la mano de Aragon. Hagalo con coraje!\n", *nivel);
         return;
-    
+
     }
- 
+
     while((*bando != BANDO_OFENSIVO) && (*bando != BANDO_DEFENSIVO)){
         printf("No se le ha podido asignar un bando. Por favor vuelva a empezar\n");
         averiguar_elemento( signo_zodiaco,  elemento);
@@ -147,7 +147,7 @@ void asignar_bando( int *signo_zodiaco, char *genero_cine_fav, int *maldades_ult
         cantidad_de_maldades(  maldades_ult_mes);
         asignar_nivel( cantidad_mascotas, maldades_ult_mes, nivel);
         asignar_bando( signo_zodiaco, genero_cine_fav, maldades_ult_mes, elemento, bando, nivel, cantidad_mascotas);
-    }     
+    }
 }
 
 
@@ -165,6 +165,5 @@ void perfil(char* tipo, int* intensidad){
     averiguar_mascotas( &cantidad_mascotas);
     asignar_nivel( &cantidad_mascotas, &maldades_ult_mes, &nivel);
     asignar_bando( &signo_zodiaco, &genero_cine_fav, &maldades_ult_mes, &elemento, &bando, &nivel, &cantidad_mascotas);
-    
-}
 
+}

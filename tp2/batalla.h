@@ -36,6 +36,7 @@ typedef struct juego {
 	int cantidad_isengard;
 	int llegadas_isengard;
 	int plus_isengard;
+	int cantidad_jugadores;
 	jugador_t jugador1;
 	jugador_t jugador2;
 	// Pueden agregar los campos que deseen
