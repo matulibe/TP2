@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "perfil.h"
 
 const int LIMITE_MAX_MALDADES = 99;
 const int LIMITE_MIN_MALDADES = 0;
@@ -11,8 +12,6 @@ const char ELEMENTO_FUEGO = 'F';
 const char ELEMENTO_TIERRA = 'T';
 const char ELEMENTO_AIRE = 'A';
 const char ELEMENTO_AGUA = 'W';
-const char BANDO_OFENSIVO = 'O';
-const char BANDO_DEFENSIVO = 'D';
 const char GENERO_ACCION = 'A';
 const char GENERO_DRAMA = 'D';
 const char GENERO_COMEDIA = 'C';
@@ -89,8 +88,6 @@ void asignar_nivel(int* cantidad_mascotas, int* maldades_ult_mes, int* nivel){
        intensidad = intensidad + 4;
     }else if( *cantidad_mascotas == 5){
        intensidad = intensidad + 5;
-    }else if( *cantidad_mascotas == 0){
-       intensidad = intensidad + 0;
     }
 
     if(((*maldades_ult_mes >= 0) && (*maldades_ult_mes <= 9)) || ((*maldades_ult_mes >= 50) && (*maldades_ult_mes <= 59))){
@@ -136,7 +133,6 @@ void asignar_bando( int *signo_zodiaco, char *genero_cine_fav, int *maldades_ult
         ((*elemento == ELEMENTO_AGUA) || (*elemento == ELEMENTO_TIERRA))){
         *bando = BANDO_DEFENSIVO;
         printf("Ha sido asignado al bando defensivo, nivel %i, luchara de la mano de Aragon. Hagalo con coraje!\n", *nivel);
-        return;
 
     }
 
@@ -157,13 +153,15 @@ void perfil(char* tipo, int* intensidad){
     int maldades_ult_mes;
     int cantidad_mascotas;
     char elemento;
-    char bando = *tipo;
-    int nivel = *intensidad;
+    char bando;
+    int nivel;
     averiguar_elemento( &signo_zodiaco, &elemento);
     averiguar_genero_fav(&genero_cine_fav);
     cantidad_de_maldades( &maldades_ult_mes);
     averiguar_mascotas( &cantidad_mascotas);
     asignar_nivel( &cantidad_mascotas, &maldades_ult_mes, &nivel);
     asignar_bando( &signo_zodiaco, &genero_cine_fav, &maldades_ult_mes, &elemento, &bando, &nivel, &cantidad_mascotas);
+    *tipo = bando;
+    *intensidad = nivel;
 
 }

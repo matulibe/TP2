@@ -6,7 +6,6 @@
 #include "batalla.h"
 
 
-
 const int VIDA_INMOVILES = 200;
 const int VIDA_MOVILES = 100;
 const int ATAQUE_INMOVILES = 10;
@@ -277,6 +276,7 @@ void preguntar_personaje(char* soldado, char soldado_inmovil, char soldado_movil
  * y enviara los datos al vector de rohan.
  */
 void agregar_hombres(juego_t* juego, personaje_t* personaje){
+  personaje_t hombre;
   printf("Donde lo deseas posicionar?\n");
   printf("Columna: ");
   scanf("%i", &(personaje->columna));
@@ -293,8 +293,8 @@ void agregar_hombres(juego_t* juego, personaje_t* personaje){
       scanf("%i", &(personaje->columna));
       personaje->fila = FILA_HOMBRES;
     }
-    juego->rohan[juego->cantidad_rohan] = personaje_movil_nuevo(HOMBRES, juego->plus_rohan, personaje->columna, personaje->fila);
-    juego->cantidad_rohan++;
+    hombre = personaje_movil_nuevo(HOMBRES, juego->plus_rohan, personaje->columna, personaje->fila);
+    posicionar_personaje( juego, hombre);
     sacar_energia_defensivo( juego, HOMBRES);
   }
 }
@@ -305,6 +305,7 @@ void agregar_hombres(juego_t* juego, personaje_t* personaje){
  * y enviara los datos al vector de rohan.
  */
 void agregar_elfos(juego_t* juego, personaje_t* personaje){
+  personaje_t elfo;
   printf("Donde lo deseas posicionar?\n");
   printf("Columna: ");
   scanf("%i", &(personaje->columna));
@@ -318,14 +319,9 @@ void agregar_elfos(juego_t* juego, personaje_t* personaje){
     printf("Fila: ");
     scanf("%i", &(personaje->fila));
   }
-  juego->rohan[juego->cantidad_rohan] = personaje_inmovil_nuevo(ELFOS, juego->plus_rohan, personaje->columna, personaje->fila);
-  juego->cantidad_rohan++;
+  elfo = personaje_inmovil_nuevo(ELFOS, juego->plus_rohan, personaje->columna, personaje->fila);
+  posicionar_personaje( juego, elfo);
   sacar_energia_defensivo( juego, ELFOS);
-  if(((personaje->fila) < 9) && ((personaje->fila) > 4) && (personaje->columna <= 9 && personaje->columna >= 0)){
-    juego->rohan[juego->cantidad_rohan] = personaje_inmovil_nuevo(ELFOS, juego->plus_rohan, personaje->columna, personaje->fila);
-    juego->cantidad_rohan++;
-    sacar_energia_defensivo( juego, ELFOS);
-  }
 }
 
 
@@ -334,26 +330,21 @@ void agregar_elfos(juego_t* juego, personaje_t* personaje){
  * y enviara los datos al vector de isengard.
  */
 void agregar_orcos(juego_t* juego, personaje_t* personaje){
+  personaje_t orcos;
   printf("Donde lo deseas posicionar?\n");
   printf("Columna: ");
   scanf("%i", &(personaje->columna));
   personaje->fila = 0;
-  if(personaje->columna <= 9 && personaje->columna >= 0){
-    juego->isengard  [juego->cantidad_isengard ] = personaje_movil_nuevo(ORCOS, juego->plus_isengard  , personaje->columna, personaje->fila);
-    juego->cantidad_isengard++;
-    sacar_energia_ofensivo( juego, ORCOS);
-  }else{
     while(personaje->columna < 0 || personaje->columna > 9) {
       printf("No se puede posicionar en ese lugar. Por favor ingrese otro valor.\n");
       printf("Donde lo deseas posicionar?\n");
       printf("Columna: ");
       scanf("%i", &(personaje->columna));
     }
-    personaje->fila = ORCOS;
-    juego->isengard  [juego->cantidad_isengard ] = personaje_movil_nuevo(ORCOS, juego->plus_isengard  , personaje->columna, personaje->fila);
-    juego->cantidad_isengard++;
+    personaje->fila = 0;
+    orcos = personaje_movil_nuevo(ORCOS, juego->plus_rohan, personaje->columna, personaje->fila);
+    posicionar_personaje( juego, orcos);
     sacar_energia_ofensivo( juego, ORCOS);
-  }
 }
 
 
@@ -362,6 +353,7 @@ void agregar_orcos(juego_t* juego, personaje_t* personaje){
  * y enviara los datos al vector de isengard.
  */
 void agregar_urukhai(juego_t* juego, personaje_t* personaje){
+  personaje_t urukhai;
   printf("Donde lo deseas posicionar?\n");
   printf("Columna: ");
   scanf("%i", &(personaje->columna));
@@ -375,14 +367,9 @@ void agregar_urukhai(juego_t* juego, personaje_t* personaje){
     printf("Fila: ");
     scanf("%i", &(personaje->fila));
   }
-  juego->isengard  [juego->cantidad_isengard ] = personaje_inmovil_nuevo(URUKHAI, juego->plus_isengard  , personaje->columna, personaje->fila);
-  juego->cantidad_isengard++;
+  urukhai = personaje_inmovil_nuevo(URUKHAI, juego->plus_rohan, personaje->columna, personaje->fila);
+  posicionar_personaje( juego, urukhai);
   sacar_energia_ofensivo( juego, URUKHAI);
-  if(((personaje->fila) < 9) && ((personaje->fila) > 4) && (personaje->columna <= 9 && personaje->columna >= 0)){
-    juego->isengard  [juego->cantidad_isengard ] = personaje_inmovil_nuevo(URUKHAI, juego->plus_isengard  , personaje->columna, personaje->fila);
-    juego->cantidad_isengard++;
-    sacar_energia_ofensivo( juego, URUKHAI);
-  }
 }
 
 
@@ -402,7 +389,7 @@ void agregar_personajes(juego_t* juego, personaje_t* personaje, char bando){
         if((energia >= ENERGIA_INMOVILES)){
           agregar_elfos(juego, personaje);
         }else{
-          if((energia <= ENERGIA_INMOVILES)){
+          if((energia < ENERGIA_INMOVILES)){
             printf("Energia insuficiente.\n");
             agregar_personajes(juego, personaje, bando);
           }
@@ -411,7 +398,7 @@ void agregar_personajes(juego_t* juego, personaje_t* personaje, char bando){
         if((energia >= ENERGIA_MOVILES)){
           agregar_hombres(juego, personaje);
         }else{
-          if((energia <= ENERGIA_MOVILES)){
+          if((energia < ENERGIA_MOVILES)){
             printf("Energia insuficiente.\n");
             agregar_personajes(juego, personaje, bando);
           }
@@ -419,6 +406,7 @@ void agregar_personajes(juego_t* juego, personaje_t* personaje, char bando){
       }
     }
   }else{
+    int energia = energia_ofensivo(juego);
     preguntar_usuario(&respuesta);
     if(respuesta == RESPUESTA_POSITIVA){
       char soldado;
@@ -427,7 +415,7 @@ void agregar_personajes(juego_t* juego, personaje_t* personaje, char bando){
         if((energia >= ENERGIA_INMOVILES)){
           agregar_urukhai(juego, personaje);
         }else{
-          if((energia <= ENERGIA_INMOVILES)){
+          if((energia < ENERGIA_INMOVILES)){
             printf("Energia insuficiente.\n");
             agregar_personajes(juego, personaje, bando);
           }
@@ -436,7 +424,7 @@ void agregar_personajes(juego_t* juego, personaje_t* personaje, char bando){
         if((energia >= ENERGIA_MOVILES)){
           agregar_orcos(juego, personaje);
         }else{
-          if((energia <= ENERGIA_MOVILES)){
+          if((energia < ENERGIA_MOVILES)){
             printf("Energia insuficiente.\n");
             agregar_personajes(juego, personaje, bando);
           }
@@ -616,11 +604,11 @@ void inicializar_juego(juego_t* juego){
     int cantidad;
     char tipo;
     srand (( unsigned ) time ( NULL ));
+    limpiar_juego( juego);
+    limpiar_terreno(juego);
     perfil(&tipo, &intensidad);
     (juego->jugador1.tipo) = tipo;
     (juego->jugador2.tipo) = tipo_opuesto(tipo);
-    limpiar_juego( juego);
-    limpiar_terreno(juego);
     averiguar_cant_jugadores( &cantidad);
     juego->cantidad_jugadores = cantidad;
     definir_plus_rohan( juego, intensidad, tipo);
@@ -654,22 +642,18 @@ void pedir_datos(juego_t* juego, personaje_t* personaje){
 
 
 void posicionar_personaje(juego_t* juego, personaje_t personaje){
-  for(int i = 0; i < juego->cantidad_rohan; i++){
-    if(personaje.codigo == ELFOS) {
-      juego->terreno[personaje.fila][personaje.columna] = ELFOS;
-    }else{
-      juego->terreno[personaje.fila][personaje.columna] = HOMBRES;
-    }
-  }
-  for(int i = 0; i < juego->cantidad_isengard; i++){
-    if(personaje.codigo == URUKHAI) {
-      juego->terreno[personaje.fila][personaje.columna] = URUKHAI;
-    }else{
-      juego->terreno[personaje.fila][personaje.columna] = ORCOS;
-    }
+    if(personaje.codigo == ELFOS || personaje.codigo == HOMBRES){
+      juego->rohan[juego->cantidad_rohan] = personaje;
+      juego->cantidad_rohan++;
+      juego->terreno[personaje.fila][personaje.columna] = personaje.codigo;
+  }else{
+    juego->isengard[juego->cantidad_isengard] = personaje;
+    juego->cantidad_isengard++;
+    juego->terreno[personaje.fila][personaje.columna] = personaje.codigo;
   }
   imprimir_terreno( juego);
 }
+
 
 
 
