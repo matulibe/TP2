@@ -35,7 +35,6 @@ void limpiar_personajes(personaje_t *personaje){
   personaje->ataque = 0;
   personaje->fila = 0;
   personaje->columna = 0;
-  personaje->esta_vivo = false;
 }
 
 //Inicializa el struct de juego.
@@ -52,8 +51,8 @@ void limpiar_juego(juego_t *juego){
 }
 
 /*
-  **Tomara la intensidad de perfil y le multiplicara un numero entre 0 y 5
-*para modificar la vida y el ataque
+ * Tomara la intensidad de perfil y le multiplicara un numero entre 0 y 5
+ * para modificar la vida y el ataque
  */
 void definir_plus_rohan(juego_t *juego, int intensidad, char tipo){
     int plus;
@@ -64,8 +63,8 @@ void definir_plus_rohan(juego_t *juego, int intensidad, char tipo){
 }
 
 /*
-  **Tomara la intensidad de perfil y le multiplicara un numero entre 0 y 5
-*para modificar la vida y el ataque.
+ *Tomara la intensidad de perfil y le multiplicara un numero entre 0 y 5
+ *para modificar la vida y el ataque.
  */
 void definir_plus_isengard(juego_t *juego, int intensidad, char tipo){
     int plus;
@@ -85,51 +84,56 @@ void limpiar_terreno(juego_t* juego){
 
 //Imprime la matriz y sus bordes.
 void imprimir_terreno(juego_t* juego){
-
-    printf("+ ");
-    for(int i = 1; i<MAX_TERRENO_COL+1; i++){
-        printf("= ");
-    }
-    printf("+ \n");
-
-
-    for(int i = 0; i < MAX_TERRENO_FIL; i++){
-        printf("| ");
-        for(int j = 0; j < MAX_TERRENO_COL; j++){
-            printf(" %c", juego->terreno[i][j] );
-        }
-
-        printf("| \n");
-    }
-
-    printf("+ ");
-    for(int i = 1; i<MAX_TERRENO_COL+1; i++){
-        printf("= ");
-    }
-    printf("+ \n");
+  for(int i = 0; i < MAX_TERRENO_FIL; i++){
+      for(int j = 0; j < MAX_TERRENO_COL; j++){
+          juego->terreno[i][j] = ' ';
+      }
+  }
+  for(int i = 0; i < juego->cantidad_rohan; i++){
+    juego->terreno[juego->rohan[i].fila][juego->rohan[i].columna] = juego->rohan[i].codigo;
+  }
+  for(int i = 0; i < juego->cantidad_isengard; i++){
+    juego->terreno[juego->isengard[i].fila][juego->isengard[i].columna] = juego->isengard[i].codigo;
+  }
+  printf("+ ");
+  for(int i = 1; i<MAX_TERRENO_COL+1; i++){
+      printf("= ");
+  }
+  printf("+ \n");
+  for(int i = 0; i < MAX_TERRENO_FIL; i++){
+      printf("| ");
+      for(int j = 0; j < MAX_TERRENO_COL; j++){
+          printf(" %c", juego->terreno[i][j]);
+      }
+      printf("| \n");
+  }
+  printf("+ ");
+  for(int i = 1; i<MAX_TERRENO_COL+1; i++){
+      printf("= ");
+  }
+  printf("+ \n");
 }
 
+
 //Guarda los datos de los personajes inmoviles para cargarlos a su vector correspondiente.
-personaje_t personaje_inmovil_nuevo(char codigo, int plus, int x, int y){
+personaje_t personaje_inmovil_nuevo(char codigo, int plus, int columna, int fila){
   personaje_t personaje;
   personaje.vida = VIDA_INMOVILES - plus;
   personaje.ataque = ATAQUE_INMOVILES + plus;
   personaje.codigo = codigo;
-  personaje.fila = y;
-  personaje.columna = x;
-  personaje.esta_vivo = true;
+  personaje.fila = fila;
+  personaje.columna = columna;
   return personaje;
 }
 
 //Guarda los datos de los personajes moviles para cargarlos a su vector correspondiente.
-personaje_t personaje_movil_nuevo(char codigo, int plus, int x, int y){
+personaje_t personaje_movil_nuevo(char codigo, int plus, int columna, int fila){
   personaje_t personaje;
   personaje.vida = VIDA_MOVILES - plus;
   personaje.ataque = ATAQUE_MOVILES + plus;
   personaje.codigo = codigo;
-  personaje.fila = y;
-  personaje.columna = x;
-  personaje.esta_vivo = true;
+  personaje.fila = fila;
+  personaje.columna = columna;
   return personaje;
 }
 
@@ -180,6 +184,17 @@ void averiguar_cant_jugadores(int* cantidad){
   }
 }
 
+
+void posicionar_personaje(juego_t* juego, personaje_t personaje){
+  if(personaje.codigo == ELFOS || personaje.codigo == HOMBRES){
+    juego->rohan[juego->cantidad_rohan] = personaje;
+    juego->cantidad_rohan++;
+  }else{
+    juego->isengard[juego->cantidad_isengard] = personaje;
+    juego->cantidad_isengard++;
+  }
+  juego->terreno[personaje.fila][personaje.columna] = personaje.codigo;
+}
 
 //Se fiajra que judaor es defensivo y le asignara la enregia del jugador a la variable
 int energia_defensivo(juego_t* juego){
@@ -467,13 +482,6 @@ void jugador_maquina_ofensivo(juego_t* juego, personaje_t* personaje){
   }
 }
 
-//Revisa la vida de los personjes y define si sigue vivo o no.
-void sigue_vivo(personaje_t *personaje){
-  if(personaje->vida <= 0){
-    personaje->esta_vivo = false;
-  }
-}
-
 
 //Le asigna el bando opuesto del jugador 1 al jugador 2.
 char tipo_opuesto(char tipo){
@@ -498,70 +506,127 @@ void energia_j2(juego_t* juego){
 
 
 /*
- *
- */
-void rango_inmovil(personaje_t personaje, personaje_t* enemigo, juego_t juego){
-  int distancia = (abs(personaje.fila - enemigo->fila) + abs(personaje.columna - enemigo->columna));
-  if(personaje.codigo == ELFOS){
-    for(int i = 0; i < juego.cantidad_isengard; i++){
-      if(distancia <= 3){
-        enemigo->vida -= (ATAQUE_INMOVILES + juego.plus_rohan);
-      }
-    }
-  }else if(personaje.codigo == URUKHAI){
-    for(int i = 0; i < juego.cantidad_rohan; i++){
-      if(distancia <= 3){
-        enemigo->vida -= (ATAQUE_INMOVILES + juego.plus_isengard);
-      }
-    }
-  }
-}
-
-
-/*
  * Revisara los vectores de cada bando y revisara si algun personaje no sigue vivo,
  * y en tal caso lo eliminara del vector y de la matriz
 */
-void eliminar_personajes(juego_t* juego, personaje_t* personaje){
-  for(int i = 0; i < juego->cantidad_rohan; i++){
-    sigue_vivo(personaje);
-    if(personaje->esta_vivo == false){
-      juego->rohan[i] = juego->rohan[juego->cantidad_rohan - 1];
-      juego->cantidad_rohan--;
-      juego->terreno[personaje->fila][personaje->columna] = ' ';
-    }
-  }
-  for(int i = 0; i < juego->cantidad_isengard; i++){
-    sigue_vivo(personaje);
-    if(personaje->esta_vivo == false){
-      juego->isengard[i] = juego->isengard[juego->cantidad_isengard - 1];
-      juego->cantidad_isengard--;
-      juego->terreno[personaje->fila][personaje->columna] = ' ';
-    }
-  }
+void eliminar_personajes(personaje_t personajes[MAX_PERSONAJES], int *cantidad_personajes, int indice){
+  personajes[indice] = personajes[*cantidad_personajes - 1];
+  cantidad_personajes--;
 }
 
+
 /*
- *Se fijara la poscion de los personajes inmoviles, y revisara el vector del bando
- * contrario y en el caso que este en rango atacara al personaje.
- */
-void rango_inmoviles(juego_t* juego, personaje_t* personaje, personaje_t *enemigo){
-  int distancia = (abs(personaje->fila - enemigo->fila) + abs(personaje->columna - enemigo->columna));
-    if(personaje->codigo == HOMBRES && distancia != 1){
-      personaje->fila--;
-    }else{
-      for(int i = 0; i < juego->cantidad_isengard; i++){
-        if(distancia == 1){
-          enemigo->vida = (ATAQUE_MOVILES + juego->plus_rohan);
+*Se fijara la poscion de los personajes inmoviles, y revisara el vector del bando
+* contrario y en el caso que este en rango atacara al personaje.
+*/
+void rango_inmoviles(juego_t* juego, char bando){
+  int distancia = 0;
+  if(bando == BANDO_DEFENSIVO){
+    for(int i = 0; i < juego->cantidad_rohan; i++){
+      if(juego->rohan[i].codigo == ELFOS){
+        for(int j = 0; j < juego->cantidad_isengard; j++){
+          distancia = (abs(juego->rohan[i].fila - juego->isengard[j].fila) + abs(juego->rohan[i].columna - juego->isengard[j].columna));
+          if(distancia <= 3){
+            juego->isengard[j].vida -= (juego->rohan[i].ataque);
+            if(juego->isengard[j].vida <= 0){
+              eliminar_personajes( juego->isengard, &(juego->cantidad_isengard), j);
+            }
+          }
         }
       }
     }
-    if(personaje->codigo == ORCOS && distancia != 1){
-      personaje->columna++;
-    }else{
-      for(int i = 0; i < juego->cantidad_rohan; i++){
-        if(distancia == 1){
-          enemigo->vida = (ATAQUE_MOVILES + juego->plus_isengard);
+  }else{
+    for(int j = 0; j < juego->cantidad_isengard; j++){
+      if(juego->isengard[j].codigo == URUKHAI){
+        for(int i = 0; i < juego->cantidad_rohan; i++){
+          distancia = (abs(juego->rohan[i].fila - juego->isengard[j].fila) + abs(juego->rohan[i].columna - juego->isengard[j].columna));
+          if(distancia <= 3){
+            juego->rohan[i].vida -= (juego->isengard[j].ataque);
+            if(juego->rohan[i].vida <= 0){
+              eliminar_personajes( juego->rohan, &(juego->cantidad_rohan), i);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+bool esta_en_rango(juego_t* juego, char tipo, int fila, int columna, int pos1, int pos2){
+  int esta = false;
+  int distancia = 0;
+  if(tipo == BANDO_DEFENSIVO){
+    distancia = (abs(juego->rohan[pos2].fila - juego->isengard[pos2].fila) + abs(juego->rohan[pos2].columna - juego->isengard[pos2].columna));
+    if(distancia <= 1){
+      esta = true;
+    }else if((juego->isengard[pos2].fila == fila++ && juego->isengard[pos2].columna == columna++) || (juego->isengard[pos2].fila == fila++ && juego->isengard[pos2].columna == columna--)){
+      esta = true;
+    }else if((juego->isengard[pos2].fila == fila-- && juego->isengard[pos2].columna == columna++) || (juego->isengard[pos2].fila == fila-- && juego->isengard[pos2].columna == columna--)){
+      esta = true;
+    }
+  }else{
+    distancia = (abs(juego->rohan[pos2].fila - juego->isengard[pos2].fila) + abs(juego->rohan[pos2].columna - juego->isengard[pos2].columna));
+    if(distancia <= 1){
+      esta = true;
+    }else if((juego->rohan[pos2].fila == fila++ && juego->rohan[pos2].columna == columna++) || (juego->rohan[pos2].fila == fila++ && juego->rohan[pos2].columna == columna--)){
+      esta = true;
+    }else if((juego->rohan[pos2].fila == fila-- && juego->rohan[pos2].columna == columna++) || (juego->rohan[pos2].fila == fila-- && juego->rohan[pos2].columna == columna--)){
+      esta = true;
+    }
+  }
+  return esta;
+}
+
+
+/*
+* Se fijara la poscion de los personajes moviles, y revisara el vector del bando
+* contrario y en el caso que este en rango atacara al personaje.
+*/
+void rango_moviles(juego_t* juego, char bando, int posicion_personaje){
+  bool ataco = false;
+  if(bando == BANDO_DEFENSIVO){
+    for(posicion_personaje = 0; posicion_personaje < juego->cantidad_rohan; posicion_personaje++){
+      int fila = juego->rohan[posicion_personaje].fila;
+      int columna = juego->rohan[posicion_personaje].columna;
+      if(juego->rohan[posicion_personaje].codigo == HOMBRES){
+        int j = 0;
+        while(j < juego->cantidad_isengard && ataco == false){
+          if(esta_en_rango( juego, bando, fila, columna, posicion_personaje, j) == true){
+            juego->isengard[j].vida -= juego->rohan[posicion_personaje].ataque;
+            ataco = true;
+            if(juego->isengard[j].vida <= 0){
+              eliminar_personajes( juego->isengard, &(juego->cantidad_isengard), j);
+            }
+          }else{
+            j++;
+          }
+        }
+        if(ataco == false){
+          juego->rohan[posicion_personaje].fila--;
+        }
+      }
+    }
+  }else{
+    for(; posicion_personaje < juego->cantidad_isengard; posicion_personaje++){
+      int fila = juego->isengard[posicion_personaje].fila;
+      int columna = juego->isengard[posicion_personaje].columna;
+      if(juego->isengard[posicion_personaje].codigo == ORCOS){
+        int i = 0;
+        while(i < juego->cantidad_rohan  && ataco == false){
+          if(esta_en_rango( juego, bando, fila, columna, i, posicion_personaje) == true){
+            juego->rohan[i].vida -= juego->isengard[posicion_personaje].ataque;
+            ataco = true;
+            if(juego->rohan[i].vida <= 0){
+              eliminar_personajes( juego->rohan, &(juego->cantidad_rohan), i);
+            }
+          }else{
+            i++;
+          }
+        }
+        if(ataco == false){
+          juego->isengard[posicion_personaje].fila++;
+        }
       }
     }
   }
@@ -569,20 +634,28 @@ void rango_inmoviles(juego_t* juego, personaje_t* personaje, personaje_t *enemig
 
 
 /*
- *Revisara la posicion de los personjes moviles de cada, y en el caso de que esta en la posicion
+ * Revisara la posicion de los personjes moviles de cada, y en el caso de que esta en la posicion
  * esperada le sumara 1 a la cantidad de llegadas de cada jugador.
  */
-void puntos(juego_t* juego, personaje_t personaje){
-  if(personaje.codigo == HOMBRES && personaje.fila == 0){
-    juego->llegadas_rohan++;
-  }else if(personaje.codigo == ORCOS && personaje.fila == FILA_HOMBRES){
-    juego->llegadas_isengard++;
+void puntos(juego_t* juego){
+    for(int i = 0; i < juego->cantidad_rohan; i++){
+      if(juego->rohan[i].codigo == HOMBRES && juego->rohan[i].fila == 0){
+        juego->llegadas_rohan++;
+        eliminar_personajes( juego->rohan, &(juego->cantidad_rohan), i);
+      }
+    }
+  for(int j = 0; j < juego->cantidad_isengard; j++){
+    if(juego->isengard[j].codigo == ORCOS && juego->isengard[j].fila == FILA_HOMBRES){
+      juego->llegadas_isengard++;
+      eliminar_personajes( juego->isengard, &(juego->cantidad_isengard), j);
+    }
   }
 }
 
+
 /*
- *Resvisara la cantidad de llegadas de cada jugador
- * y en el caso de que alguno llegue a la cantidad devolvera un true.
+ * Resvisara la cantidad de llegadas de cada jugador, y en el caso de
+ * que alguno llegue a la cantidad necesaria devolvera un true.
  */
 bool ganador(juego_t* juego){
   bool gano = false;
@@ -592,6 +665,13 @@ bool ganador(juego_t* juego){
     gano = true;
   }
   return gano;
+}
+
+
+void jugar(juego_t* juego, char bando, int posicion_personaje){
+  rango_inmoviles( juego, bando);
+  rango_moviles( juego, bando, posicion_personaje);
+  puntos( juego);
 }
 
 
@@ -618,37 +698,58 @@ void inicializar_juego(juego_t* juego){
 void pedir_datos(juego_t* juego, personaje_t* personaje){
   if(juego->cantidad_jugadores == 1){
     if(juego->jugador1.tipo == BANDO_DEFENSIVO){
-      char bando = 'R';
-      agregar_personajes(juego, personaje, bando);
-      jugador_maquina_ofensivo(juego, personaje);
+      while (ganador(juego) == false){
+        agregar_personajes(juego, personaje, BANDO_DEFENSIVO);
+        jugar( juego, BANDO_DEFENSIVO, 0);
+        jugador_maquina_ofensivo(juego, personaje);
+        jugar( juego, BANDO_OFENSIVO, 0);
+        energia_j1(juego);
+        energia_j2(juego);
+        imprimir_terreno(juego);
+      }
+      if(juego->llegadas_rohan == CANTIDAD_DE_LLEGADAS){
+        printf("Rohan ha ganado. Felicidades!\n");
+      }else{
+        printf("Isengard ha ganado. Felicidades!\n");
+      }
     }else{
-      char bando = 'I';
-      jugador_maquina_defensivo(juego, personaje);
-      agregar_personajes(juego, personaje, bando);
+      while(ganador(juego) == false){
+        jugador_maquina_defensivo(juego, personaje);
+        jugar( juego, BANDO_DEFENSIVO, 0);
+        agregar_personajes(juego, personaje, BANDO_OFENSIVO);
+        jugar( juego, BANDO_OFENSIVO, 0);
+        energia_j1(juego);
+        energia_j2(juego);
+        imprimir_terreno(juego);
+      }
+      if(juego->llegadas_rohan == CANTIDAD_DE_LLEGADAS){
+        printf("Rohan ha ganado. Felicidades!\n");
+      }else{
+        printf("Isengard ha ganado. Felicidades!\n");
+      }
     }
   }else{
-    char bando_def = 'R';
-    char bando_ofe = 'I';
-    printf("Jugador Rohan:\n");
-    agregar_personajes(juego, personaje, bando_def);
-    printf("Jugador Isengard:\n");
-    agregar_personajes(juego, personaje, bando_ofe);
+    while (ganador(juego) == false){
+      printf("Jugador Rohan:\n");
+      agregar_personajes(juego, personaje, BANDO_DEFENSIVO);
+      jugar( juego, BANDO_DEFENSIVO, 0);
+      printf("Jugador Isengard:\n");
+      agregar_personajes(juego, personaje, BANDO_OFENSIVO);
+      jugar( juego, BANDO_OFENSIVO, 0);
+      energia_j1(juego);
+      energia_j2(juego);
+      imprimir_terreno(juego);
+    }
+    if(juego->llegadas_rohan == CANTIDAD_DE_LLEGADAS){
+      printf("Rohan ha ganado. Felicidades!\n");
+    }else{
+      printf("Isengard ha ganado. Felicidades!\n");
+    }
   }
 }
 
 
-void posicionar_personaje(juego_t* juego, personaje_t personaje){
-    if(personaje.codigo == ELFOS || personaje.codigo == HOMBRES){
-      juego->rohan[juego->cantidad_rohan] = personaje;
-      juego->cantidad_rohan++;
-      juego->terreno[personaje.fila][personaje.columna] = personaje.codigo;
-  }else{
-    juego->isengard[juego->cantidad_isengard] = personaje;
-    juego->cantidad_isengard++;
-    juego->terreno[personaje.fila][personaje.columna] = personaje.codigo;
-  }
-  imprimir_terreno( juego);
-}
+
 
 
 

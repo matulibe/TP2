@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include "batalla.h"
 
+
 int main(){
 	juego_t juego;
 	personaje_t personaje;
 	inicializar_juego( &juego);
 	pedir_datos( &juego, &(personaje));
-	posicionar_personaje( &juego, personaje);
-
+ 	return 0;
 }
 
 

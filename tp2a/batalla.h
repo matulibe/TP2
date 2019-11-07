@@ -22,7 +22,6 @@ typedef struct personaje {
 	int ataque;
 	int fila;
 	int columna;
-	bool esta_vivo;
 	// Pueden agregar los campos que deseen
 } personaje_t;
 
